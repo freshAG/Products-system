@@ -13,15 +13,19 @@ const OrderContractView: React.FC<{ lang: Language }> = ({ lang }) => {
       '外壳 J-3', '线束 L-9', '散热器 R-4', '阀门 G-6', '弹簧 T-1',
       '主控芯片 IC-10', '铝合金框架 FR-2', '绝缘垫片 IN-01', '微型马达 MT-5', '高压管路 HP-8', '显示模组 LCD-V2'
     ];
-    return parts.map((name, i) => ({
-      id: `CTR-2023-${(100 + i)}`,
-      planId: `PLAN-${(i + 1).toString().padStart(3, '0')}`,
-      supplierName: i % 2 === 0 ? `正奇机械 ${((i % 10) + 1)} 公司` : `Alpha Elec ${((i % 10) + 1)} Ltd`,
-      itemName: name,
-      totalAmount: 5000 + (i * 2500),
-      signDate: `2023-11-${(i % 28) + 1}`,
-      status: i % 5 === 0 ? 'Fulfilled' : 'Active'
-    }));
+    return parts.map((name, i) => {
+      const month = (Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0');
+      const day = (Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0');
+      return {
+        id: `CTR-2025-${(100 + i)}`,
+        planId: `PLAN-${(i + 1).toString().padStart(3, '0')}`,
+        supplierName: i % 2 === 0 ? `正奇机械 ${((i % 10) + 1)} 公司` : `Alpha Elec ${((i % 10) + 1)} Ltd`,
+        itemName: name,
+        totalAmount: 5000 + (i * 2500),
+        signDate: `2025-${month}-${day}`,
+        status: i % 5 === 0 ? 'Fulfilled' : 'Active'
+      };
+    });
   };
 
   const [contracts, setContracts] = useState<OrderContract[]>(generateInitialContracts());

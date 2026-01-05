@@ -13,9 +13,17 @@ const SupplyNoticeView: React.FC<{ lang: Language }> = ({ lang }) => {
       '外壳 J-3', '线束 L-9', '散热器 R-4', '阀门 G-6', '弹簧 T-1',
       '主控芯片 IC-10', '铝合金框架 FR-2', '绝缘垫片 IN-01', '微型马达 MT-5', '高压管路 HP-8', '显示模组 LCD-V2'
     ];
+    
+    // Simulating current date as Dec 15, 2025
     return parts.map((name, i) => {
       const total = 500 + (i * 100);
       const supplied = Math.floor(Math.random() * total);
+      const month = (Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0');
+      const day = (Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0');
+      
+      // All dates set to 2026 as per user request
+      const dateStr = `2026-${month}-${day}`;
+      
       return {
         id: `NOTICE-SN-${(1000 + i)}`,
         supplierName: i % 2 === 0 ? `正奇机械 ${((i % 10) + 1)} 公司` : `Alpha Elec ${((i % 10) + 1)} Ltd`,
@@ -25,7 +33,7 @@ const SupplyNoticeView: React.FC<{ lang: Language }> = ({ lang }) => {
         suppliedQty: supplied,
         remainingQty: total - supplied,
         unitPrice: 50 + (i * 10),
-        estCompletionDate: `2024-01-${(i % 28) + 1}`,
+        estCompletionDate: dateStr,
         status: supplied === total ? 'Completed' : (i % 7 === 0 ? 'Delayed' : 'In-Progress')
       };
     });
@@ -41,7 +49,9 @@ const SupplyNoticeView: React.FC<{ lang: Language }> = ({ lang }) => {
             <Truck className="text-blue-600" />
             {t('供货计划通知单 (21)', 'Supply Notice Tracker (21)')}
           </h2>
-          <p className="text-xs text-slate-500 mt-1">{t('实时监控厂商到货情况与欠交明细', 'Real-time monitoring of arrival status and backlogs')}</p>
+          <p className="text-xs text-slate-500 mt-1">
+            {t('实时监控厂商到货情况与欠交明细 (基准日期: 2025-12-15)', 'Real-time monitoring of arrival status (Simulated Date: 2025-12-15)')}
+          </p>
         </div>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition-all">+ {t('编制通知单', 'Create Notice')}</button>
       </div>

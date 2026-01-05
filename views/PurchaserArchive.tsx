@@ -9,16 +9,20 @@ const PurchaserArchive: React.FC<{ lang: Language }> = ({ lang }) => {
   
   const generateInitialPurchasers = (): Purchaser[] => {
     const fixedNames = ['王旭', '王晓明', '李红', '张强', '刘伟', '陈静', '杨波', '周平', '赵敏', '孙悦', '吴健'];
-    return fixedNames.map((name, i) => ({ 
-      id: `P${(i + 1).toString().padStart(3, '0')}`, 
-      name: name, 
-      phone: `13${i % 9}-9999-${1000 + i}`, 
-      address: `总部大楼${i + 1}层采购部`, 
-      rating: 4.0 + (Math.random() * 1.0),
-      evaluations: [
-        { id: `E0${i}1`, param: t('业务熟练度', 'Business Proficiency'), score: 85 + (i % 15), comment: t('表现稳健', 'Steady performance'), date: '2023-11-01' }
-      ]
-    }));
+    return fixedNames.map((name, i) => {
+      const month = (Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0');
+      const day = (Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0');
+      return { 
+        id: `P${(i + 1).toString().padStart(3, '0')}`, 
+        name: name, 
+        phone: `13${i % 9}-9999-${1000 + i}`, 
+        address: `总部大楼${i + 1}层采购部`, 
+        rating: 4.0 + (Math.random() * 1.0),
+        evaluations: [
+          { id: `E0${i}1`, param: t('业务熟练度', 'Business Proficiency'), score: 85 + (i % 15), comment: t('表现稳健', 'Steady performance'), date: `2025-${month}-${day}` }
+        ]
+      };
+    });
   };
 
   const [purchasers, setPurchasers] = useState<Purchaser[]>(generateInitialPurchasers());

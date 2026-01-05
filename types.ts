@@ -85,6 +85,38 @@ export interface SupplyNotice {
   status: 'In-Progress' | 'Completed' | 'Delayed';
 }
 
+export interface InspectionRequest {
+  id: string;
+  noticeId: string;
+  supplierName: string;
+  itemName: string;
+  batchNo: string;
+  requestQty: number;
+  requestDate: string;
+  inspector: string;
+  status: 'Pending' | 'Qualified' | 'Unqualified';
+}
+
+export interface QualityRectification {
+  id: string;
+  inspectId: string;
+  supplierName: string;
+  issueDesc: string;
+  rectifyPlan: string;
+  deadline: string;
+  status: 'Wait-Confirm' | 'Closed';
+}
+
+export interface DefectNotice {
+  id: string;
+  inspectId: string;
+  itemName: string;
+  failReason: string;
+  disposal: 'Return' | 'Scrap' | 'Concession';
+  handler: string;
+  date: string;
+}
+
 export interface QualityParam {
   id: string;
   minScore: number;

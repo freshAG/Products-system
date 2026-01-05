@@ -18,6 +18,9 @@ import SupplierProducts from './views/SupplierProducts';
 import QualityParamsView from './views/QualityParamsView';
 import OrderContractView from './views/OrderContractView';
 import SupplyNoticeView from './views/SupplyNoticeView';
+import InspectionRequestView from './views/InspectionRequestView';
+import QualityRectifyView from './views/QualityRectifyView';
+import DefectNoticeView from './views/DefectNoticeView';
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('zh');
@@ -39,6 +42,9 @@ const App: React.FC = () => {
       case 'order-contract': return <OrderContractView lang={lang} />;
       case 'supply-notice': return <SupplyNoticeView lang={lang} />;
       case 'plan-tracking': return <PlanTrackingView lang={lang} />;
+      case 'inspection-req': return <InspectionRequestView lang={lang} />;
+      case 'quality-rectify': return <QualityRectifyView lang={lang} />;
+      case 'defect-notice': return <DefectNoticeView lang={lang} />;
       case 'cost-analysis': return <CostAnalysisView lang={lang} />;
       default:
         const currentMenu = MENU_ITEMS.find(m => m.id === activeTab);
