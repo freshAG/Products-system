@@ -22,7 +22,7 @@ export interface SupplierProduct {
   model: string;
   specs: string;
   unitPrice: number;
-  supplyRatio: number; // Percentage, e.g., 60 means 60%
+  supplyRatio: number;
 }
 
 export interface PurchaserEval {
@@ -59,8 +59,30 @@ export interface ProcurementPlan {
   unit: string;
   quantity: number;
   source: 'Auto' | 'Manual';
-  supplierId?: string;
   status: 'Draft' | 'Approved' | 'Ordered';
+}
+
+export interface OrderContract {
+  id: string;
+  planId: string;
+  supplierName: string;
+  itemName: string;
+  totalAmount: number;
+  signDate: string;
+  status: 'Active' | 'Fulfilled' | 'Terminated';
+}
+
+export interface SupplyNotice {
+  id: string;
+  supplierName: string;
+  itemName: string;
+  specs: string;
+  totalQty: number;
+  suppliedQty: number;
+  remainingQty: number;
+  unitPrice: number;
+  estCompletionDate: string;
+  status: 'In-Progress' | 'Completed' | 'Delayed';
 }
 
 export interface QualityParam {
@@ -69,15 +91,6 @@ export interface QualityParam {
   maxScore: number;
   grade: string;
   description: string;
-}
-
-export interface DeptExpense {
-  id: string;
-  name: string;
-  amount: number;
-  date: string;
-  recorder: string;
-  recordDate: string;
 }
 
 export interface MenuItem {

@@ -16,6 +16,8 @@ import GeneralTableView from './views/GeneralTableView';
 import PurchaserArchive from './views/PurchaserArchive';
 import SupplierProducts from './views/SupplierProducts';
 import QualityParamsView from './views/QualityParamsView';
+import OrderContractView from './views/OrderContractView';
+import SupplyNoticeView from './views/SupplyNoticeView';
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('zh');
@@ -34,6 +36,8 @@ const App: React.FC = () => {
       case 'stock-quota': return <StockQuotaView lang={lang} />;
       case 'quality-params': return <QualityParamsView lang={lang} />;
       case 'procurement-plan': return <ProcurementPlanView lang={lang} />;
+      case 'order-contract': return <OrderContractView lang={lang} />;
+      case 'supply-notice': return <SupplyNoticeView lang={lang} />;
       case 'plan-tracking': return <PlanTrackingView lang={lang} />;
       case 'cost-analysis': return <CostAnalysisView lang={lang} />;
       default:
