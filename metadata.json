@@ -1,0 +1,7 @@
+{
+  "name": "Advanced Procurement & Supply Management System",
+  "description": "A high-end, bilingual (CN/EN) ERP-style procurement system featuring automated planning, quality analysis, cost tracking, and real-time dashboard visualizations.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
