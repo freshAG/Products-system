@@ -21,6 +21,11 @@ import SupplyNoticeView from './views/SupplyNoticeView';
 import InspectionRequestView from './views/InspectionRequestView';
 import QualityRectifyView from './views/QualityRectifyView';
 import DefectNoticeView from './views/DefectNoticeView';
+import DeptExpensesView from './views/DeptExpensesView';
+import QCQueryView from './views/QCQueryView';
+import ProdProgressView from './views/ProdProgressView';
+import QualityAnalysisView from './views/QualityAnalysisView';
+import WorkshopAnalysisView from './views/WorkshopAnalysisView';
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('zh');
@@ -45,7 +50,12 @@ const App: React.FC = () => {
       case 'inspection-req': return <InspectionRequestView lang={lang} />;
       case 'quality-rectify': return <QualityRectifyView lang={lang} />;
       case 'defect-notice': return <DefectNoticeView lang={lang} />;
+      case 'dept-expenses': return <DeptExpensesView lang={lang} />;
+      case 'qc-query': return <QCQueryView lang={lang} />;
+      case 'prod-progress': return <ProdProgressView lang={lang} />;
       case 'cost-analysis': return <CostAnalysisView lang={lang} />;
+      case 'quality-analysis': return <QualityAnalysisView lang={lang} />;
+      case 'workshop-analysis': return <WorkshopAnalysisView lang={lang} />;
       default:
         const currentMenu = MENU_ITEMS.find(m => m.id === activeTab);
         return (
@@ -65,7 +75,9 @@ const App: React.FC = () => {
             <div className="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-900/50">
               <ShoppingCart className="text-white" size={20} />
             </div>
-            <h1 className="font-bold text-white text-lg tracking-tight truncate">PSM Enterprise</h1>
+            <h1 className="font-bold text-white text-base tracking-tight truncate">
+              {t('公司采购管理系统', 'PSM Enterprise')}
+            </h1>
           </div>
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-slate-800 rounded transition-colors">
             {sidebarOpen ? <X size={20} /> : <Menu size={20} className="mx-auto" />}
@@ -76,7 +88,7 @@ const App: React.FC = () => {
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
-              activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800'
+              activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'hover:bg-slate-800'
             }`}
           >
             <Activity size={20} />
@@ -86,7 +98,7 @@ const App: React.FC = () => {
           {(['MasterData', 'Operations', 'Analysis'] as const).map(cat => (
             <div key={cat} className="space-y-1">
               {sidebarOpen && (
-                <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2 mt-4">
+                <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 mt-4 opacity-70">
                   {t(
                     cat === 'MasterData' ? '基础数据' : cat === 'Operations' ? '业务操作' : '统计分析',
                     cat === 'MasterData' ? 'Master Data' : cat === 'Operations' ? 'Operations' : 'Analytics'
@@ -98,7 +110,7 @@ const App: React.FC = () => {
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
-                    activeTab === item.id ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800'
+                    activeTab === item.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'hover:bg-slate-800'
                   }`}
                   title={!sidebarOpen ? t(item.label, item.labelEn) : ''}
                 >
@@ -119,9 +131,9 @@ const App: React.FC = () => {
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-20 sticky top-0">
-          <h2 className="text-lg font-semibold text-slate-800 truncate">
-            {activeTab === 'dashboard' ? t('系统概览', 'System Overview') : 
+        <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-20 sticky top-0 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-800 truncate">
+            {activeTab === 'dashboard' ? t('数据总览仪表盘', 'Data Overview Dashboard') : 
              t(MENU_ITEMS.find(m => m.id === activeTab)?.label || '', MENU_ITEMS.find(m => m.id === activeTab)?.labelEn || '')}
           </h2>
 
@@ -133,10 +145,12 @@ const App: React.FC = () => {
             <div className="h-8 w-px bg-slate-200 mx-1"></div>
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-slate-900 leading-none">Admin</p>
-                <p className="text-xs text-slate-500 mt-1">{t('超级管理员', 'Super Admin')}</p>
+                <p className="text-sm font-bold text-slate-900 leading-none">Super Admin</p>
+                <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">{t('系统首席管理员', 'System Chief Admin')}</p>
               </div>
-              <div className="w-9 h-9 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-sm">A</div>
+              <div className="w-9 h-9 bg-gradient-to-tr from-blue-700 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                <User size={20} />
+              </div>
             </div>
           </div>
         </header>

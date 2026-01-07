@@ -117,6 +117,29 @@ export interface DefectNotice {
   date: string;
 }
 
+export interface DeptExpense {
+  id: string;
+  date: string;
+  department: string;
+  category: string;
+  description: string;
+  amount: number;
+  approver: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+}
+
+export interface ProductionProgress {
+  id: string;
+  itemName: string;
+  drawingNo: string;
+  startDate: string;
+  planEndDate: string;
+  progress: number;
+  stage: 'Planning' | 'Purchasing' | 'Manufacturing' | 'Inspection' | 'Completed';
+  status: 'On-track' | 'At-risk' | 'Delayed';
+  delayDays: number;
+}
+
 export interface QualityParam {
   id: string;
   minScore: number;
