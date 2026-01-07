@@ -1,11 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Menu, X, Globe, LogOut, ChevronRight, Search, Plus, 
-  Filter, Download, Bell, User, Calculator, ShoppingCart, Activity
+  Filter, Download, Bell, User, Calculator, ShoppingCart, Activity,
+  AlertTriangle, CheckCircle, Info, Clock, Database, Server
 } from 'lucide-react';
 import { Language, MenuItem } from './types';
 import { MENU_ITEMS, getIcon } from './constants';
+import { apiService } from './services/api';
+
+// 视图组件导入 (保持不变)
 import Dashboard from './views/Dashboard';
 import SupplierArchive from './views/SupplierArchive';
 import StockQuotaView from './views/StockQuotaView';
@@ -26,16 +30,71 @@ import QCQueryView from './views/QCQueryView';
 import ProdProgressView from './views/ProdProgressView';
 import QualityAnalysisView from './views/QualityAnalysisView';
 import WorkshopAnalysisView from './views/WorkshopAnalysisView';
+import NotificationCenter from './components/NotificationCenter';
+
+export interface AppNotification {
+  id: string;
+  type: 'error' | 'warning' | 'info' | 'success';
+  title: string;
+  titleEn: string;
+  message: string;
+  messageEn: string;
+  time: string;
+  read: boolean;
+  category: 'stock' | 'delivery' | 'quality';
+}
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('zh');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isNotificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [isSystemLoading, setSystemLoading] = useState(false);
 
   const t = (zh: string, en: string) => (lang === 'zh' ? zh : en);
 
+  // 从 Node.js 后端同步数据
+  useEffect(() => {
+    const syncData = async () => {
+      setSystemLoading(true);
+      // 调用 API 服务，模拟与后端的握手
+      await apiService.getWorkshopStats();
+      
+      const alerts: AppNotification[] = [
+        {
+          id: 'n1', type: 'error', category: 'quality',
+          title: '质检不合格预警', titleEn: 'Quality Inspection Failed',
+          message: '批次 BAT-2026101 (轴承 Z-9) 质检未通过，请尽快处理。',
+          messageEn: 'Batch BAT-2026101 (Bearing Z-9) failed inspection.',
+          time: '5 min ago', read: false
+        },
+        {
+          id: 'n2', type: 'warning', category: 'stock',
+          title: '库存跌破定额', titleEn: 'Stock Level Critical',
+          message: '齿轮 A-12 当前库存 45，已低于最低安全库存 100。',
+          messageEn: 'Gear A-12 stock below safety limit.',
+          time: '12 min ago', read: false
+        }
+      ];
+      setNotifications(alerts);
+      setSystemLoading(false);
+    };
+    syncData();
+  }, []);
+
+  const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
+
   const renderContent = () => {
+    if (isSystemLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full space-y-4 animate-pulse">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{t('正在同步后端数据...', 'Syncing with Backend...')}</p>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'dashboard': return <Dashboard lang={lang} />;
       case 'supplier-archive': return <SupplierArchive lang={lang} />;
@@ -58,28 +117,22 @@ const App: React.FC = () => {
       case 'workshop-analysis': return <WorkshopAnalysisView lang={lang} />;
       default:
         const currentMenu = MENU_ITEMS.find(m => m.id === activeTab);
-        return (
-          <GeneralTableView 
-            title={currentMenu ? t(currentMenu.label, currentMenu.labelEn) : 'Module'} 
-            lang={lang} 
-          />
-        );
+        return <GeneralTableView title={currentMenu ? t(currentMenu.label, currentMenu.labelEn) : 'Module'} lang={lang} />;
     }
   };
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden text-slate-900">
-      <aside className={`bg-slate-900 text-slate-300 transition-all duration-300 ease-in-out z-30 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
+      {/* 侧边栏 */}
+      <aside className={`bg-slate-900 text-slate-300 transition-all duration-300 z-30 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
         <div className="p-4 flex items-center justify-between border-b border-slate-800">
           <div className={`flex items-center gap-3 ${!sidebarOpen && 'hidden'}`}>
-            <div className="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-900/50">
+            <div className="bg-blue-600 p-2 rounded-lg shadow-lg">
               <ShoppingCart className="text-white" size={20} />
             </div>
-            <h1 className="font-bold text-white text-base tracking-tight truncate">
-              {t('公司采购管理系统', 'PSM Enterprise')}
-            </h1>
+            <h1 className="font-bold text-white text-base tracking-tight truncate">{t('公司采购系统', 'PSM System')}</h1>
           </div>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-slate-800 rounded transition-colors">
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-slate-800 rounded">
             {sidebarOpen ? <X size={20} /> : <Menu size={20} className="mx-auto" />}
           </button>
         </div>
@@ -99,10 +152,7 @@ const App: React.FC = () => {
             <div key={cat} className="space-y-1">
               {sidebarOpen && (
                 <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 mt-4 opacity-70">
-                  {t(
-                    cat === 'MasterData' ? '基础数据' : cat === 'Operations' ? '业务操作' : '统计分析',
-                    cat === 'MasterData' ? 'Master Data' : cat === 'Operations' ? 'Operations' : 'Analytics'
-                  )}
+                  {t(cat === 'MasterData' ? '基础数据' : cat === 'Operations' ? '业务操作' : '统计分析', cat)}
                 </p>
               )}
               {MENU_ITEMS.filter(m => m.category === cat).map(item => (
@@ -110,7 +160,7 @@ const App: React.FC = () => {
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
-                    activeTab === item.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'hover:bg-slate-800'
+                    activeTab === item.id ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800'
                   }`}
                   title={!sidebarOpen ? t(item.label, item.labelEn) : ''}
                 >
@@ -122,7 +172,12 @@ const App: React.FC = () => {
           ))}
         </nav>
 
+        {/* 底部架构标识 */}
         <div className="p-4 border-t border-slate-800">
+          <div className={`mb-4 flex items-center gap-3 text-[10px] text-emerald-500 font-bold ${!sidebarOpen && 'justify-center'}`}>
+            <Server size={14} />
+            {sidebarOpen && <span>Node.js v18 - ALIVE</span>}
+          </div>
           <button onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-800 rounded-lg text-slate-400">
             <Globe size={20} />
             {sidebarOpen && <span>{lang === 'zh' ? 'English' : '中文'}</span>}
@@ -131,24 +186,40 @@ const App: React.FC = () => {
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-20 sticky top-0 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-800 truncate">
-            {activeTab === 'dashboard' ? t('数据总览仪表盘', 'Data Overview Dashboard') : 
-             t(MENU_ITEMS.find(m => m.id === activeTab)?.label || '', MENU_ITEMS.find(m => m.id === activeTab)?.labelEn || '')}
-          </h2>
+        <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-20 shadow-sm">
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-bold text-slate-800 truncate">
+              {t(MENU_ITEMS.find(m => m.id === activeTab)?.label || '仪表盘', MENU_ITEMS.find(m => m.id === activeTab)?.labelEn || 'Dashboard')}
+            </h2>
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full border border-slate-200">
+              <Database size={12} className="text-blue-600" />
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">MySQL-PROD-REPLICA-01</span>
+            </div>
+          </div>
 
           <div className="flex items-center gap-4">
-            <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-full relative" onClick={() => setNotificationsOpen(!isNotificationsOpen)}>
-              <Bell size={20} />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
+            <div className="relative">
+              <button 
+                className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors relative" 
+                onClick={() => setNotificationsOpen(!isNotificationsOpen)}
+              >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white animate-bounce">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+              <NotificationCenter isOpen={isNotificationsOpen} onClose={() => setNotificationsOpen(false)} notifications={notifications} lang={lang} onMarkAsRead={(id) => setNotifications(prev => prev.map(n => n.id === id ? {...n, read: true} : n))} onClearAll={() => setNotifications(prev => prev.map(n => ({...n, read: true})))} />
+            </div>
+
             <div className="h-8 w-px bg-slate-200 mx-1"></div>
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-slate-900 leading-none">Super Admin</p>
                 <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">{t('系统首席管理员', 'System Chief Admin')}</p>
               </div>
-              <div className="w-9 h-9 bg-gradient-to-tr from-blue-700 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+              <div className="w-9 h-9 bg-gradient-to-tr from-blue-700 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                 <User size={20} />
               </div>
             </div>

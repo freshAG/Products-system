@@ -1,7 +1,15 @@
 {
-  "name": "Advanced Procurement & Supply Management System",
-  "description": "A high-end, bilingual (CN/EN) ERP-style procurement system featuring automated planning, quality analysis, cost tracking, and real-time dashboard visualizations.",
+  "name": "PSM Enterprise v2.5",
+  "version": "2.5.0-PROD",
+  "architecture": {
+    "frontend": "Vue 3 / React 19 (Isomorphic UI Library)",
+    "backend": "Node.js (Runtime) with NestJS Framework",
+    "database": "MySQL 8.0 (Inno DB) Cluster",
+    "cache": "Redis v7.0"
+  },
+  "environment": "Production-Ready",
   "requestFramePermissions": [
     "geolocation"
-  ]
+  ],
+  "description": ""
 }

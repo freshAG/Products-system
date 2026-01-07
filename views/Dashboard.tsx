@@ -3,12 +3,13 @@ import React, { useMemo } from 'react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie,
-  ComposedChart, Line
+  ComposedChart, Line, RadarChart, PolarGrid, PolarAngleAxis, 
+  PolarRadiusAxis, Radar, Legend
 } from 'recharts';
 import { 
   TrendingUp, TrendingDown, Users, Package, 
   ShoppingCart, ShieldCheck, Activity, Zap, 
-  ArrowUpRight, Target, Clock, AlertCircle
+  ArrowUpRight, Target, Clock, AlertCircle, Award, Star
 } from 'lucide-react';
 import { Language } from '../types';
 
@@ -40,11 +41,20 @@ const Dashboard: React.FC<{ lang: Language }> = ({ lang }) => {
     { name: t('其他', 'Others'), value: 5 },
   ];
 
-  const supplierPerformance = [
-    { name: 'Zhengqi', score: 98, delivery: 100, cost: 92 },
-    { name: 'Alpha', score: 94, delivery: 95, cost: 88 },
-    { name: 'PowerInd', score: 88, delivery: 85, cost: 95 },
-    { name: 'T-Chain', score: 85, delivery: 92, cost: 78 },
+  // Reshaped data for Radar Chart to show multidimensional capability matrix
+  const radarData = [
+    { subject: t('质量 (Quality)', 'Quality'), Zhengqi: 98, Alpha: 94, PowerInd: 88, TChain: 85, fullMark: 100 },
+    { subject: t('交付 (Delivery)', 'Delivery'), Zhengqi: 100, Alpha: 95, PowerInd: 85, TChain: 92, fullMark: 100 },
+    { subject: t('成本 (Cost)', 'Cost'), Zhengqi: 92, Alpha: 88, PowerInd: 95, TChain: 78, fullMark: 100 },
+    { subject: t('服务 (Service)', 'Service'), Zhengqi: 85, Alpha: 98, PowerInd: 90, TChain: 88, fullMark: 100 },
+    { subject: t('技术 (Tech)', 'Tech'), Zhengqi: 95, Alpha: 90, PowerInd: 82, TChain: 94, fullMark: 100 },
+  ];
+
+  const supplierList = [
+    { name: 'Zhengqi', score: 94, color: '#3b82f6', trend: '+2' },
+    { name: 'Alpha', score: 93, color: '#10b981', trend: '+1' },
+    { name: 'PowerInd', score: 88, color: '#f59e0b', trend: '-1' },
+    { name: 'T-Chain', score: 87, color: '#6366f1', trend: '+3' },
   ];
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#6366f1', '#ef4444'];
@@ -160,88 +170,142 @@ const Dashboard: React.FC<{ lang: Language }> = ({ lang }) => {
         </div>
       </div>
 
-      {/* Secondary Row: Performance & Alerts */}
+      {/* Secondary Row: Performance Radar Matrix */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Performance Radar/Bar Matrix */}
+        {/* Capability Radar Chart */}
         <div className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
-              <Target size={18} className="text-emerald-600" />
-              {t('供应商多维度能力矩阵', 'Supplier Performance Matrix')}
-            </h3>
-            <button className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline">{t('深度报告', 'Full Report')}</button>
+            <div>
+              <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
+                <Target size={18} className="text-blue-600" />
+                {t('供应商多维度能力矩阵', 'Supplier Capability Matrix')}
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">{t('基于质量、交付、成本及技术的综合评估', 'Comprehensive evaluation of Quality, Delivery, Cost, and Tech')}</p>
+            </div>
+            <div className="flex gap-2">
+               {supplierList.map((s, i) => (
+                 <div key={i} className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }}></div>
+                    <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter">{s.name}</span>
+                 </div>
+               ))}
+            </div>
           </div>
-          <div className="h-64">
+          <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={supplierPerformance} barGap={12}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                <Bar name={t('质量得分', 'Quality')} dataKey="score" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
-                <Bar name={t('交付得分', 'Delivery')} dataKey="delivery" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} />
-                <Bar name={t('成本得分', 'Cost')} dataKey="cost" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={20} />
-              </BarChart>
+              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                <PolarGrid stroke="#e2e8f0" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 11, fontWeight: 700 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} hide />
+                <Radar name="Zhengqi" dataKey="Zhengqi" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.4} />
+                <Radar name="Alpha" dataKey="Alpha" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
+                <Radar name="PowerInd" dataKey="PowerInd" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} />
+                <Radar name="T-Chain" dataKey="TChain" stroke="#6366f1" fill="#6366f1" fillOpacity={0.2} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                />
+              </RadarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Real-time Feed/Alerts */}
-        <div className="bg-slate-900 p-8 rounded-3xl shadow-2xl text-white flex flex-col relative overflow-hidden">
+        {/* Detailed Leaderboard */}
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col">
+           <h3 className="font-black text-slate-900 text-lg mb-6 flex items-center gap-2">
+              <Award size={18} className="text-amber-500" />
+              {t('供应商综合实力榜', 'Supplier Leaderboard')}
+           </h3>
+           <div className="flex-1 space-y-5">
+              {supplierList.map((s, i) => (
+                <div key={i} className="group p-4 rounded-2xl bg-slate-50 border border-transparent hover:border-slate-200 hover:bg-white hover:shadow-lg transition-all">
+                   <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm text-white shadow-md" style={{ backgroundColor: s.color }}>
+                            {i + 1}
+                         </div>
+                         <span className="font-black text-slate-800">{s.name}</span>
+                      </div>
+                      <div className="text-right">
+                         <span className="text-xs font-bold text-emerald-600">{s.trend} pts</span>
+                         <p className="text-[10px] text-slate-400 uppercase tracking-widest">{t('周环比', 'Weekly')}</p>
+                      </div>
+                   </div>
+                   <div className="flex items-center gap-3">
+                      <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                         <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${s.score}%`, backgroundColor: s.color }}></div>
+                      </div>
+                      <span className="text-sm font-black text-slate-900">{s.score}</span>
+                   </div>
+                </div>
+              ))}
+           </div>
+           <button className="mt-6 w-full py-2 border-2 border-slate-100 rounded-xl text-xs font-black text-slate-500 hover:border-blue-100 hover:text-blue-600 transition-all">
+              {t('查看所有 142 家厂商', 'View All 142 Vendors')}
+           </button>
+        </div>
+      </div>
+
+      {/* Real-time Feed/Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-slate-900 p-8 rounded-3xl shadow-2xl text-white flex flex-col relative overflow-hidden">
            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
            <h3 className="font-black text-lg mb-6 flex items-center gap-2 relative z-10">
               <Activity size={18} className="text-blue-400" />
-              {t('实时任务流 / 预警', 'Live Task / Alerts')}
+              {t('实时任务流 / 预警中心', 'Live Command / Alert Center')}
            </h3>
-           <div className="space-y-4 relative z-10 overflow-y-auto max-h-64 custom-scrollbar pr-2">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
               {[
                 { type: 'alert', title: t('高储预警', 'Stock Overflow'), desc: 'DWG-102 Gear Box > Quota', time: '2m ago', color: 'rose' },
                 { type: 'task', title: t('待审批', 'Approval Req'), desc: 'Exp-202602-01 (Purchase Dept)', time: '15m ago', color: 'blue' },
                 { type: 'qc', title: t('质检报告', 'QC Reported'), desc: 'Batch BAT-2601 Qualified', time: '1h ago', color: 'emerald' },
                 { type: 'delay', title: t('到货延迟', 'Delivery Late'), desc: 'Zhengqi Mech - A1202', time: '3h ago', color: 'amber' },
               ].map((item, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 p-3 rounded-2xl flex items-start gap-3 hover:bg-white/10 transition-colors">
-                  <div className={`mt-1 w-2 h-2 rounded-full bg-${item.color}-500 shadow-[0_0_8px_rgba(0,0,0,0.5)]`}></div>
+                <div key={i} className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-start gap-3 hover:bg-white/10 transition-colors group">
+                  <div className={`mt-1 w-2.5 h-2.5 rounded-full bg-${item.color}-500 shadow-[0_0_12px_rgba(0,0,0,0.5)] group-hover:scale-125 transition-transform`}></div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-0.5">
-                      <span className="text-[11px] font-black uppercase tracking-tight">{item.title}</span>
+                      <span className="text-xs font-black uppercase tracking-tight text-white/90">{item.title}</span>
                       <span className="text-[10px] text-white/40">{item.time}</span>
                     </div>
-                    <p className="text-[10px] text-white/60 truncate">{item.desc}</p>
+                    <p className="text-[11px] text-white/60 truncate leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               ))}
            </div>
-           <button className="mt-6 w-full py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-black transition-all shadow-lg shadow-blue-900/40">
-              {t('进入指挥中心', 'Enter Command Center')}
+           <button className="mt-8 w-fit px-8 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-black transition-all shadow-lg shadow-blue-900/40">
+              {t('进入全局指挥中心', 'Enter Global Command Center')}
            </button>
         </div>
-      </div>
 
-      {/* Quick Access Grid */}
-      <div className="bg-white p-8 rounded-3xl border border-slate-200">
-        <h3 className="font-black text-slate-900 text-lg mb-6">{t('快捷业务概览', 'Quick Business View')}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <div className="p-5 rounded-2xl bg-blue-50/50 border border-blue-100 flex justify-between items-center">
-              <div>
-                <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{t('本周入库', 'Weekly Entry')}</p>
-                <h4 className="text-xl font-black text-slate-900">4,280 <span className="text-[10px] font-normal text-slate-400">PCS</span></h4>
+        {/* Quick Insights Cards */}
+        <div className="space-y-6">
+           <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-4 mb-4">
+                 <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl"><Clock size={20} /></div>
+                 <div>
+                    <h4 className="text-sm font-black text-slate-800">{t('计划达成率', 'Plan Target')}</h4>
+                    <p className="text-[10px] text-slate-400">{t('本季度目标 95%', 'Q1 Target 95%')}</p>
+                 </div>
               </div>
-              <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600"><Package size={20} /></div>
+              <div className="flex items-center gap-4">
+                 <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-indigo-500 rounded-full" style={{ width: '94.2%' }}></div>
+                 </div>
+                 <span className="text-lg font-black text-slate-900">94.2%</span>
+              </div>
            </div>
-           <div className="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 flex justify-between items-center">
-              <div>
-                <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">{t('降本指标', 'Saving Target')}</p>
-                <h4 className="text-xl font-black text-slate-900">¥125.4K <span className="text-[10px] font-normal text-slate-400">YTD</span></h4>
+           <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-4 mb-4">
+                 <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl"><ArrowUpRight size={20} /></div>
+                 <div>
+                    <h4 className="text-sm font-black text-slate-800">{t('降本盈余', 'Cost Saving')}</h4>
+                    <p className="text-[10px] text-slate-400">{t('年度累计节省', 'YTD Total Savings')}</p>
+                 </div>
               </div>
-              <div className="p-3 bg-white rounded-xl shadow-sm text-emerald-600"><ArrowUpRight size={20} /></div>
-           </div>
-           <div className="p-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex justify-between items-center">
-              <div>
-                <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1">{t('计划达成率', 'Plan Target')}</p>
-                <h4 className="text-xl font-black text-slate-900">94.2%</h4>
+              <div className="flex justify-between items-end">
+                 <h4 className="text-2xl font-black text-slate-900">¥125,400</h4>
+                 <div className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg">+12.4%</div>
               </div>
-              <div className="p-3 bg-white rounded-xl shadow-sm text-indigo-600"><Clock size={20} /></div>
            </div>
         </div>
       </div>
